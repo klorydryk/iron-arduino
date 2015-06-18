@@ -1,13 +1,13 @@
-    #include <Adafruit_NeoPixel.h>
-    #include <math.h>
-    
-    #define ENCODER_DO_NOT_USE_INTERRUPTS // in case of Arduino NANO for example (without interrupt)
-    #include <Encoder.h>
+#include <Adafruit_NeoPixel.h>
+#include <math.h>
+
+#define ENCODER_DO_NOT_USE_INTERRUPTS // in case of Arduino NANO for example (without interrupt)
+#include <Encoder.h>
 
 #define PIN 6
 
 // How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS      24
+#define NUMPIXELS   24
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -18,59 +18,63 @@
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 
 //Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
-    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-     
-    float alpha; // Current value of the pixels
-    int minAlpha = 15; // Min value of brightness
-    int maxAlpha = 100; // Max value of brightness
-    int cycle = 0;
-    int redValue = 100;
-    int greenValue = 150;
-    int blueValue = 254;
-   
-    Encoder myEnc(2, 3);
-    long oldPosition  = -999;
-         
-    void setup() {
-      Serial.begin(9600);
-      Serial.println("Basic Encoder Test:");
-      
-      strip.begin();
-      strip.show(); // Initialize all pixels to 'off'
-    }
-     
-     void loop() {
-        long newPosition = myEnc.read();
-        if (newPosition != oldPosition)
-        {
-          oldPosition = newPosition;
-          Serial.println(newPosition);
-          
-          redValue   = (100 + newPosition)%255;
-          greenValue = (150 + newPosition)%255;
-          blueValue  = (255 + newPosition)%255;
-        }
-        
-      breath(6);
-    }
-    
-    void breath(uint16_t breathLength) // cycle in second
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+// Limits of brightness
+#define MIN_ALPHA 15
+#define MAX_ALPHA 100
+
+float alpha; // Current value of the pixels
+
+int cycle = 0;
+
+// Start color, red~0, green~85, blue~170
+#define StartColor 150
+int colorValue = StartColor; // New Color management value
+uint8_t rgb[3];
+
+// Encoder management
+Encoder myEnc(2, 3);
+long oldPosition  = -999;
+
+void setup() {
+    Serial.begin(9600);
+    Serial.println("Basic Encoder Test:");
+
+    strip.begin();
+    strip.show(); // Initialize all pixels to 'off'
+}
+
+void loop() {
+    long newPosition = myEnc.read();
+    if (newPosition != oldPosition)
     {
-      float breathDivisor = 8*breathLength;
-      alpha = 0.5 + 0.5*sin(cycle++/breathDivisor);
-      
-      //Serial.println(alpha);
-      
+        oldPosition = newPosition;
+        Serial.println(newPosition);
+
+        ColorWheel(newPosition, rgb);
+    }
+
+    breath(6);
+}
+
+void breath(uint16_t breathLength) // cycle in second
+{
+    float breathDivisor = 8*breathLength;
+    alpha = 0.5 + 0.5*sin(cycle++/breathDivisor);
+
+//Serial.println(alpha);
+
 //    colorWipe(strip.Color(100, 150, 255));
-      colorWipe(strip.Color(redValue, greenValue, blueValue));
-      strip.setBrightness(minAlpha + (maxAlpha-minAlpha)*alpha);
-    }
-     
-    // Fill the dots one after the other with a color
-    void colorWipe(uint32_t c) {
-      for(uint16_t i=0; i<strip.numPixels(); i++) {
-          strip.setPixelColor(i, c);
-          strip.show();
-      }
-    }
+    colorWipe(strip.Color(rgb[0],rgb[1],rgb[2]));
+    strip.setBrightness(MIN_ALPHA + (MAX_ALPHA-MIN_ALPHA)*alpha);
+}
+
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t c) {
+    for(uint16_t i=0; i<strip.numPixels(); i++)
+        strip.setPixelColor(i, c);
+
+    strip.show();
+}
 
