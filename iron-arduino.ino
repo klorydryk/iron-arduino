@@ -21,7 +21,7 @@
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // Limits of brightness
-#define MIN_ALPHA 15
+#define MIN_ALPHA 20
 #define MAX_ALPHA 100
 
 float alpha; // Current value of the pixels
@@ -37,16 +37,19 @@ uint8_t rgb[3];
 Encoder myEnc(2, 3);
 long oldPosition  = -999;
 
+int decallage = 0;
 void setup() {
     Serial.begin(9600);
     Serial.println("Basic Encoder Test:");
 
     strip.begin();
     strip.show(); // Initialize all pixels to 'off'
+
 }
 
 void loop() {
-    long newPosition = myEnc.read();
+    decallage+=5;
+    /*long newPosition = myEnc.read();
     if (newPosition != oldPosition)
     {
         oldPosition = newPosition;
@@ -55,26 +58,8 @@ void loop() {
         ColorWheel(newPosition, rgb);
     }
 
-    breath(6);
+    breath(6);*/
+    ArcEnCiel(decallage);
+    breath(100);
+
 }
-
-void breath(uint16_t breathLength) // cycle in second
-{
-    float breathDivisor = 8*breathLength;
-    alpha = 0.5 + 0.5*sin(cycle++/breathDivisor);
-
-//Serial.println(alpha);
-
-//    colorWipe(strip.Color(100, 150, 255));
-    colorWipe(strip.Color(rgb[0],rgb[1],rgb[2]));
-    strip.setBrightness(MIN_ALPHA + (MAX_ALPHA-MIN_ALPHA)*alpha);
-}
-
-// Fill the dots one after the other with a color
-void colorWipe(uint32_t c) {
-    for(uint16_t i=0; i<strip.numPixels(); i++)
-        strip.setPixelColor(i, c);
-
-    strip.show();
-}
-

@@ -1,4 +1,34 @@
-#include <stdint.h>
+
+
+
+void breath(uint16_t breathLength) // cycle in second
+{
+    float breathDivisor = 8*breathLength;
+    alpha = 0.5 + 0.5*sin(cycle++/breathDivisor);
+
+    strip.setBrightness(MIN_ALPHA + (MAX_ALPHA-MIN_ALPHA)*alpha);
+    strip.show();
+}
+
+
+
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t c) {
+    for(uint16_t i=0; i<strip.numPixels(); i++)
+        strip.setPixelColor(i, c);
+
+    strip.show();
+}
+
+void ArcEnCiel(int decalage_octet) {
+    for(uint16_t i=0; i<strip.numPixels(); i++) {
+        int position = (255*i + decalage_octet)/NUMPIXELS;
+        ColorWheel(position, rgb);
+        strip.setPixelColor(i, strip.Color(rgb[0],rgb[1],rgb[2]));
+    }
+    strip.show();
+}
+
 
 int scaleValueToByte(int value, int max) {
     return (255*value)/max;
