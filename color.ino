@@ -1,6 +1,6 @@
 
-
-
+int cycle = 0;
+float alpha; // Current value of the pixels
 void breath(uint16_t breathLength) // cycle in second
 {
     float breathDivisor = 8*breathLength;

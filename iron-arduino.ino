@@ -1,13 +1,8 @@
-#include <Adafruit_NeoPixel.h>
 #include <math.h>
+#include <Adafruit_NeoPixel.h>
 
 #define ENCODER_DO_NOT_USE_INTERRUPTS // in case of Arduino NANO for example (without interrupt)
 #include <Encoder.h>
-
-#define PIN 6
-
-// How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS   24
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -16,21 +11,14 @@
 //   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-
-//Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
+#define PIN 6
+#define NUMPIXELS   24
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // Limits of brightness
 #define MIN_ALPHA 20
 #define MAX_ALPHA 100
 
-float alpha; // Current value of the pixels
-
-int cycle = 0;
-
-// Start color, red~0, green~85, blue~170
-#define StartColor 150
-int colorValue = StartColor; // New Color management value
 uint8_t rgb[3];
 
 // Encoder management
@@ -45,10 +33,12 @@ void setup() {
     strip.begin();
     strip.show(); // Initialize all pixels to 'off'
 
+    strip.setBrightness(MIN_ALPHA);
 }
 
 void loop() {
-    decallage+=5;
+    decallage+=(20+10*getSpeedCycleValue());
+    decallage%=255*24; //sinon il y a un léger dépassement…
     /*long newPosition = myEnc.read();
     if (newPosition != oldPosition)
     {
@@ -60,6 +50,13 @@ void loop() {
 
     breath(6);*/
     ArcEnCiel(decallage);
-    breath(100);
+    //breath(10);
 
+}
+
+int cycleSpeed = 0;
+const int cycleSpeedLength = 10;
+float getSpeedCycleValue() {
+    float breathDivisor = 8*cycleSpeedLength;
+    return sin(cycleSpeed++/breathDivisor);
 }
