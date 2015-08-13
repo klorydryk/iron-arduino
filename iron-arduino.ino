@@ -34,9 +34,12 @@ void setup() {
     strip.show(); // Initialize all pixels to 'off'
 
     strip.setBrightness(MIN_ALPHA);
+    lcd_setup();
+  
 }
 
 void loop() {
+    lcd_decale(0);
     decallage+=(20+10*getSpeedCycleValue());
     decallage%=255*24; //sinon il y a un léger dépassement…
     /*long newPosition = myEnc.read();
@@ -55,7 +58,7 @@ void loop() {
 }
 
 int cycleSpeed = 0;
-const int cycleSpeedLength = 10;
+const int cycleSpeedLength = 8;
 float getSpeedCycleValue() {
     float breathDivisor = 8*cycleSpeedLength;
     return sin(cycleSpeed++/breathDivisor);
